@@ -6,11 +6,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/redis/go-redis/v9"
 	"os"
+	"strings"
 )
 
 type Redis struct {
 	*redis.Client
-	Config *oauth1.Config
+	Config map[string]*oauth1.Config
 }
 type CustomContext struct {
 	echo.Context
@@ -34,18 +35,24 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			c.Logger().Fatal(err)
 		}
-		return next(&CustomContext{c, Redis{
-			Client: redis.NewClient(opt),
-			Config: &oauth1.Config{
-				ConsumerKey:    os.Getenv("CONSUMER_KEY"),
-				ConsumerSecret: os.Getenv("CONSUMER_SECRET"),
-				CallbackURL:    fmt.Sprintf("%s/callback", os.Getenv("HOST")),
+		users := strings.Split(os.Getenv("USERS"), ",")
+		configs := make(map[string]*oauth1.Config, len(users))
+		for _, user := range users {
+			configs[user] = &oauth1.Config{
+				ConsumerKey:    os.Getenv(fmt.Sprintf("%s_CONSUMER_KEY", strings.ToUpper(user))),
+				ConsumerSecret: os.Getenv(fmt.Sprintf("%s_CONSUMER_SECRET", strings.ToUpper(user))),
+				CallbackURL:    fmt.Sprintf("%s/auth/callback", os.Getenv("HOST")),
 				Endpoint: oauth1.Endpoint{
 					RequestTokenURL: requestURL,
 					AuthorizeURL:    authorizeURL,
 					AccessTokenURL:  accessURL,
 				},
-			},
+			}
+		}
+		c.Logger().Infof("configs: %v", configs)
+		return next(&CustomContext{c, Redis{
+			Client: redis.NewClient(opt),
+			Config: configs,
 		}})
 	}
 }

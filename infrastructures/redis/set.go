@@ -2,15 +2,29 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/redis/go-redis/v9"
+	"time"
 )
 
-func SetRequestSecret(ctx context.Context, c *redis.Client, token string) error {
-	return c.Set(ctx, requestSecret, token, 0).Err()
+func SetZaimSecret(ctx context.Context, c *redis.Client, oauthToken, user, secret string) error {
+	b, err := json.Marshal(RequestSecret{
+		Secret: secret,
+		User:   user,
+	})
+	if err != nil {
+		return err
+	}
+	return c.Set(ctx, oauthToken, b, time.Minute*5).Err()
 }
-func SetOAuthToken(ctx context.Context, c *redis.Client, token string) error {
-	return c.Set(ctx, oauthToken, token, 0).Err()
-}
-func SetOAuthTokenSecret(ctx context.Context, c *redis.Client, token string) error {
-	return c.Set(ctx, oauthTokenSecret, token, 0).Err()
+func SetOAuthTokens(ctx context.Context, c *redis.Client, user, token, tokenSecret string) error {
+	b, err := json.Marshal(OauthToken{
+		Token:  token,
+		Secret: tokenSecret,
+	})
+	if err != nil {
+		return err
+	}
+	return c.Set(ctx, user, b, 0).Err()
+
 }

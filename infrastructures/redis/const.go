@@ -1,8 +1,11 @@
 package redis
 
-const (
-	requestToken     = "REQUEST_TOKEN"
-	requestSecret    = "REQUEST_SECRET"
-	oauthToken       = "OAUTH_TOKEN"
-	oauthTokenSecret = "OAUTH_TOKEN_SECRET"
-)
+type RequestSecret struct {
+	Secret string `json:"secret"`
+	User   string `json:"user"`
+}
+
+type OauthToken struct {
+	Token  string `json:"token"`
+	Secret string `json:"secret"`
+}

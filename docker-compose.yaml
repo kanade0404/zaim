@@ -1,4 +1,7 @@
 version: "3.8"
+x-custom:
+  gcp:
+    - &gcp_project_id "dummy"
 
 services:
   redis:

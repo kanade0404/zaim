@@ -17,4 +17,7 @@ func initialize(e *echo.Echo) {
 	auth.GET("/", zaim.Authorization)
 	auth.GET("/callback", zaim.CallbackOAuthToken)
 	e.POST("/transaction", zaim.Register)
+	e.GET("/categories", zaim.ListActiveCategory)
+	e.GET("/genres", zaim.ListActiveGenre)
+	e.GET("/accounts", zaim.ListActiveAccount)
 }
