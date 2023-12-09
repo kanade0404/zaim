@@ -3,16 +3,14 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"zaim/handlers/zaim"
-	"zaim/middlewares"
 )
 
 func main() {
-	e := echo.New()
-	initialize(e)
-	e.Logger.Fatal(e.Start(":8888"))
+	initialize()
 }
-func initialize(e *echo.Echo) {
-	e.Use(middlewares.Context)
+func initialize() {
+	e := echo.New()
+	//e.Use(middlewares.Context)
 	auth := e.Group("/auth")
 	auth.GET("/", zaim.Authorization)
 	auth.GET("/callback", zaim.CallbackOAuthToken)
@@ -20,4 +18,5 @@ func initialize(e *echo.Echo) {
 	e.GET("/categories", zaim.ListActiveCategory)
 	e.GET("/genres", zaim.ListActiveGenre)
 	e.GET("/accounts", zaim.ListActiveAccount)
+	e.Logger.Fatal(e.Start(":8888"))
 }

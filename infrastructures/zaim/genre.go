@@ -15,7 +15,7 @@ type Genre struct {
 	Modified      string `json:"modified"`
 }
 
-func (z *ZaimClient) ListActiveGenre() ([]Genre, error) {
+func (z *Client) ListActiveGenre() ([]Genre, error) {
 	res, err := z.get("home/genre", nil)
 	if err != nil {
 		return nil, err

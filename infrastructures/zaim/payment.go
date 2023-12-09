@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/url"
 )
 
 type PaymentParameter struct {
@@ -58,30 +57,8 @@ type PaymentResponse struct {
 	Requested int      `json:"requested"`
 }
 
-func (z *ZaimClient) CreatePayment(param PaymentParameter) (PaymentResponse, error) {
-	obj, err := json.Marshal(param)
-	if err != nil {
-		return PaymentResponse{}, err
-	}
-	var paramMap map[string]interface{}
-	if err := json.Unmarshal(obj, &paramMap); err != nil {
-		return PaymentResponse{}, err
-	}
-	values := url.Values{}
-	for key, value := range paramMap {
-		switch v := value.(type) {
-		case string:
-			values.Add(key, v)
-		case float64:
-			// JSONは数値をfloat64として扱う
-			values.Add(key, fmt.Sprintf("%v", v))
-		// 他の型についても必要に応じてケースを追加
-		default:
-			return PaymentResponse{}, fmt.Errorf("unsupported type for key %s", key)
-		}
-	}
-	fmt.Println(values)
-	res, err := z.exec("POST", "home/money/payment", values)
+func (z *Client) CreatePayment(param PaymentParameter) (PaymentResponse, error) {
+	res, err := z.exec("POST", "home/money/payment", param)
 	if err != nil {
 		return PaymentResponse{}, err
 	}

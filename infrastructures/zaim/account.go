@@ -15,7 +15,7 @@ type Account struct {
 	ParentAccountID int    `json:"parent_account_id"`
 }
 
-func (z *ZaimClient) ListActiveAccount() ([]Account, error) {
+func (z *Client) ListActiveAccount() ([]Account, error) {
 	res, err := z.get("home/account", nil)
 	if err != nil {
 		return nil, err

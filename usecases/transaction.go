@@ -9,12 +9,10 @@ import (
 	"github.com/labstack/echo/v4"
 	"google.golang.org/api/drive/v3"
 	"io"
-	"os"
 	"strconv"
 	"strings"
 	"time"
-	"zaim/infrastructures/json"
-	"zaim/infrastructures/redis"
+	"zaim/infrastructures/gcs"
 	"zaim/infrastructures/zaim"
 	"zaim/middlewares"
 )
@@ -41,8 +39,8 @@ func RegisterMonthlyTransactions(c echo.Context, jstLastMonth time.Time, isDryRu
 		responses [][]zaim.PaymentResponse
 		errs      []error
 	)
-	for k := range ctx.Redis.Config {
-		responses, err := RegisterTransaction(c, srv, csvFileName, k, jstLastMonth, isDryRun)
+	for k := range ctx.Config {
+		responses, err := RegisterTransaction(c, srv, ctx.Config[k].CsvFolder, csvFileName, k, jstLastMonth, isDryRun)
 		if err != nil {
 			errs = append(errs, err)
 		} else {
@@ -52,10 +50,10 @@ func RegisterMonthlyTransactions(c echo.Context, jstLastMonth time.Time, isDryRu
 	return responses, errors.Join(errs...)
 }
 
-func RegisterTransaction(c echo.Context, srv *drive.Service, csvFileName string, userName string, jstLastMonth time.Time, isDryRun bool) ([]zaim.PaymentResponse, error) {
+func RegisterTransaction(c echo.Context, srv *drive.Service, csvFolderName, csvFileName string, userName string, jstLastMonth time.Time, isDryRun bool) ([]zaim.PaymentResponse, error) {
 	c.Logger().Infof("start usecases/register. userName: %s, jstLastMonth: %s, isDryRun: %t", userName, jstLastMonth.String(), isDryRun)
 	defer c.Logger().Infof("end usecases/register. userName: %s, jstLastMonth: %s, isDryRun: %t", userName, jstLastMonth.String(), isDryRun)
-	r, err := srv.Files.List().Q(fmt.Sprintf("'%s' in parents and name = '%s'", os.Getenv(fmt.Sprintf("%s_FILE_FOLDER", userName)), csvFileName)).Do()
+	r, err := srv.Files.List().Q(fmt.Sprintf("'%s' in parents and name = '%s'", csvFolderName, csvFileName)).Do()
 	if err != nil {
 		c.Logger().Error(err)
 		return nil, err
@@ -82,36 +80,34 @@ func RegisterTransaction(c echo.Context, srv *drive.Service, csvFileName string,
 		c.Logger().Error(err)
 		return nil, err
 	}
-	var (
-		payments []zaim.PaymentParameter
-	)
+	var payments []zaim.PaymentParameter
 	// categoryをjsonから取得する
-	categories, err := json.GetCategoryByUserName(userName)
+	categories, err := gcs.GetCategoryByUserName(c.Request().Context(), userName)
 	if err != nil {
 		c.Logger().Error(err)
 		return nil, err
 	}
-	categoryMap := make(map[int]json.Category)
+	categoryMap := make(map[int]zaim.Category)
 	for _, category := range categories {
 		categoryMap[category.ID] = category
 	}
 	// genreをjsonから取得する
-	genres, err := json.GetGenreByUserName(userName)
+	genres, err := gcs.GetGenreByUserName(c.Request().Context(), userName)
 	if err != nil {
 		c.Logger().Error(err)
 		return nil, err
 	}
-	genreMap := make(map[int]json.Genre)
+	genreMap := make(map[int]zaim.Genre)
 	for _, genre := range genres {
 		genreMap[genre.ID] = genre
 	}
 	// genre_mappingをjsonから取得する
-	genreMappings, err := json.GetGenreMappingByUserName(userName)
+	genreMappings, err := gcs.GetGenreMappingByUserName(c.Request().Context(), userName)
 	if err != nil {
 		c.Logger().Error(err)
 		return nil, err
 	}
-	contentMappings, err := json.GetContentMappingByUserName(userName)
+	contentMappings, err := gcs.GetContentMappingByUserName(c.Request().Context(), userName)
 	if userName == "SHARED" && err != nil {
 		c.Logger().Error(err)
 		return nil, err
@@ -260,12 +256,9 @@ func RegisterTransaction(c echo.Context, srv *drive.Service, csvFileName string,
 		}
 	}
 	ctx := c.(*middlewares.CustomContext)
-	token, err := redis.GetOauthToken(ctx.Request().Context(), ctx.Redis.Client, userName)
-	if err != nil {
-		c.Logger().Error(err)
-		return nil, err
-	}
-	zaimClient, err := zaim.NewClient(ctx.Redis.Config[userName].ConsumerKey, ctx.Redis.Config[userName].ConsumerSecret, token.Token, token.Secret)
+	oauthToken := ctx.Config[userName].OAuthToken.Token
+	oauthTokenSecret := ctx.Config[userName].OAuthToken.Secret
+	zaimClient, err := zaim.NewClient(ctx.Config[userName].OAuthConfig.ConsumerKey, ctx.Config[userName].OAuthConfig.ConsumerSecret, oauthToken, oauthTokenSecret)
 	if err != nil {
 		c.Logger().Error(err)
 		return nil, err
@@ -285,8 +278,6 @@ func RegisterTransaction(c echo.Context, srv *drive.Service, csvFileName string,
 			continue
 		}
 		res, err := zaimClient.CreatePayment(payment)
-		fmt.Printf("%+v", res)
-		fmt.Printf("%+v", err)
 		if err != nil {
 			c.Logger().Error(err)
 			paymentErrs = append(paymentErrs, err)

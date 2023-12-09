@@ -1,0 +1,49 @@
+name: 'Deploy App'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+permissions:
+    contents: read
+    id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2.0.0'
+        with:
+          workload_identity_provider: 'projects/137094135185/locations/global/workloadIdentityPools/gh-oidc-pool/providers/github-actions'
+          service_account: 'github-actions@kanade0404.iam.gserviceaccount.com'
+          token_format: 'access_token'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      - name: Authorize Docker push
+        run: gcloud auth configure-docker
+
+      - name: Build Docker
+        run: gcloud builds submit --tag gcr.io/kanade0404/zaim-api:${{ github.sha }} .
+
+      - name: Push Docker
+        run: docker push gcr.io/kanade0404/zaim-api:${{ github.sha }}
+
+      - name: Deploy Docker
+        run: |
+          gcloud run deploy zaim-api \
+          --project=kanade0404 \
+          --image gcr.io/kanade0404/zaim-api:${{ github.sha }} \
+          --service-account zaim-func

@@ -1,0 +1,48 @@
+name: 'Build App'
+
+on:
+  pull_request
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2.0.0'
+        with:
+          workload_identity_provider: 'projects/137094135185/locations/global/workloadIdentityPools/gh-oidc-pool/providers/github-actions'
+          service_account: 'github-actions@kanade0404.iam.gserviceaccount.com'
+          token_format: 'access_token'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+
+      - name: Authorize Docker push
+        run: gcloud auth configure-docker
+
+      - name: setup-go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: ./go.mod
+
+      - name: Download Go Modules
+        run: go mod download
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Build Go
+        run: go build -o ./bin/zaim-api ./cmd/zaim-api/main.go
+
+      - name: Build Docker
+        run: gcloud builds submit --tag gcr.io/kanade0404/zaim-api:${{ github.sha }} .
+
+      - name: Push Docker
+        run: docker push gcr.io/kanade0404/zaim-api:${{ github.sha }}

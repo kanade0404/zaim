@@ -2,28 +2,19 @@ package zaim
 
 import (
 	"errors"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"zaim/infrastructures/redis"
+	"zaim/infrastructures/gcs"
 	"zaim/infrastructures/zaim"
 	"zaim/middlewares"
 )
 
 func ListActiveCategory(c echo.Context) error {
 	ctx := c.(*middlewares.CustomContext)
-	configs := ctx.Redis.Config
 	results := make(map[string][]zaim.Category)
-	var (
-		errs []error
-	)
-	for key, config := range configs {
-		oauthToken, err := redis.GetOauthToken(ctx.Request().Context(), ctx.Redis.Client, key)
-		if err != nil {
-			errs = append(errs, err)
-			continue
-		}
-		zaimClient, err := zaim.NewClient(config.ConsumerKey, config.ConsumerSecret, oauthToken.Token, oauthToken.Secret)
+	var errs []error
+	for userName, config := range ctx.Config {
+		zaimClient, err := zaim.NewClient(config.OAuthConfig.ConsumerKey, config.OAuthConfig.ConsumerSecret, config.OAuthToken.Token, config.OAuthToken.Secret)
 		if err != nil {
 			errs = append(errs, err)
 			continue
@@ -33,11 +24,13 @@ func ListActiveCategory(c echo.Context) error {
 			errs = append(errs, err)
 			continue
 		}
-		results[key] = categories
+		results[userName] = categories
 	}
 	if len(errs) > 0 {
-		fmt.Println(errs)
 		return c.JSON(http.StatusInternalServerError, errors.Join(errs...))
+	}
+	if err := gcs.PutCategory(c.Request().Context(), results); err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
 	}
 	return c.JSON(http.StatusOK, results)
 }

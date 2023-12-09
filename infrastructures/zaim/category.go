@@ -15,7 +15,7 @@ type Category struct {
 	Modified         string `json:"modified"`
 }
 
-func (z *ZaimClient) ListActiveCategory() ([]Category, error) {
+func (z *Client) ListActiveCategory() ([]Category, error) {
 	res, err := z.get("home/category", nil)
 	if err != nil {
 		return nil, err

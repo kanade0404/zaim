@@ -10,3 +10,16 @@ services:
       - "6379:6379"
     volumes:
       - ./database/redis/data:/data
+  terraform:
+     container_name: zaim-terraform
+     build:
+       context: ./terraform
+       dockerfile: Dockerfile
+     working_dir: /terraform
+     tty: true
+     volumes:
+       - ./terraform:/terraform:cached
+       - /var/run/docker.sock:/var/run/docker.sock
+     entrypoint: bash
+     environment:
+       HOME: "/terraform"
