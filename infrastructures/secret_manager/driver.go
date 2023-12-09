@@ -11,7 +11,7 @@ type Driver struct {
 	client *secretmanager.Client
 }
 
-func NewDriver(ctx context.Context, projectID string) (*Driver, error) {
+func NewDriver(ctx context.Context) (*Driver, error) {
 	c, err := secretmanager.NewClient(ctx)
 	if err != nil {
 		return nil, err

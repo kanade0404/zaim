@@ -1,7 +1,6 @@
 package gcs
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -32,19 +31,4 @@ func GetGenreMappingByUserName(ctx context.Context, userName string) (GenreConte
 	} else {
 		return nil, fmt.Errorf("genre_mappings not found: %s", userName)
 	}
-}
-
-func PutGenreMapping(ctx context.Context, genreMappings GenreMappings) error {
-	gcsDriver, err := NewDriver(ctx)
-	if err != nil {
-		return err
-	}
-	buf := new(bytes.Buffer)
-	if err := json.NewEncoder(buf).Encode(genreMappings); err != nil {
-		return err
-	}
-	if err := gcsDriver.Upload("zaim", "genre_mappings.json", buf); err != nil {
-		return err
-	}
-	return nil
 }

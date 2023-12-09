@@ -44,7 +44,7 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 			c.Logger().Fatal(err)
 		}
 		users := body.Users
-		secretDriver, err := secret_manager.NewDriver(ctx, "kanade0404")
+		secretDriver, err := secret_manager.NewDriver(ctx)
 		if err != nil {
 			c.Logger().Fatal(err)
 		}

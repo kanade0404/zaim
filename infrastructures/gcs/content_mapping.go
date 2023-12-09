@@ -1,7 +1,6 @@
 package gcs
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -32,20 +31,4 @@ func GetContentMappingByUserName(ctx context.Context, userName string) (ContentC
 	} else {
 		return nil, fmt.Errorf("content_mappings not found: %s", userName)
 	}
-}
-
-func PutContentMappings(ctx context.Context, contentMappings ContentMappings) error {
-	gcsDriver, err := NewDriver(ctx)
-	if err != nil {
-		return err
-	}
-	buf := new(bytes.Buffer)
-	if err := json.NewEncoder(buf).Encode(contentMappings); err != nil {
-		return err
-	}
-	if err := gcsDriver.Upload("zaim", "content_mappings.json", buf); err != nil {
-		return err
-	}
-	return nil
-
 }
