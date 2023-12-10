@@ -26,6 +26,7 @@ func Register(c echo.Context) error {
 		runAt synchro.Time[tz.AsiaTokyo]
 	)
 	if err := c.Bind(&body); err != nil {
+		c.Logger().Error(err)
 		return c.JSON(400, err)
 	}
 	if body.RunAt == nil {
@@ -34,13 +35,15 @@ func Register(c echo.Context) error {
 		var err error
 		runAt, err = synchro.Parse[tz.AsiaTokyo](time.DateOnly, *body.RunAt)
 		if err != nil {
-			return err
+			c.Logger().Error(err)
+			return c.JSON(http.StatusBadRequest, err)
 		}
 	}
 	// jstNowを先月の1日にする
 	jstLastMonth := runAt.AddDate(0, -1, -runAt.Day()+1)
 	res, err := usecases.RegisterMonthlyTransactions(c, jstLastMonth.StdTime(), body.DryRun)
 	if err != nil {
+		c.Logger().Error(err)
 		return c.JSON(http.StatusInternalServerError, handlers.ErrorResponse{
 			Error: err,
 		})

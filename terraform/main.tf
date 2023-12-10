@@ -131,7 +131,7 @@ resource "google_cloud_run_service" "app" {
           name           = "http1"
         }
         dynamic "env" {
-          for_each = { "HOST" : var.RUN_HOST }
+          for_each = { "HOST" : var.RUN_HOST, "PROJECT_ID" : var.PROJECT_ID }
           content {
             name  = env.key
             value = env.value

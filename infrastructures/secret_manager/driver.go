@@ -4,6 +4,8 @@ import (
 	secretmanager "cloud.google.com/go/secretmanager/apiv1"
 	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 	"context"
+	"fmt"
+	"os"
 )
 
 type Driver struct {
@@ -23,7 +25,10 @@ func NewDriver(ctx context.Context) (*Driver, error) {
 }
 
 func (d *Driver) accessSecretVersionRequest(name string) (string, error) {
-	res, err := d.client.AccessSecretVersion(d.ctx, &secretmanagerpb.AccessSecretVersionRequest{Name: name})
+	res, err := d.client.AccessSecretVersion(d.ctx,
+		&secretmanagerpb.AccessSecretVersionRequest{
+			Name: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", os.Getenv("PROJECT_ID"), name),
+		})
 	if err != nil {
 		return "", err
 	}
