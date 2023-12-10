@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 	"zaim/handlers"
 	"zaim/infrastructures/zaim"
@@ -58,8 +59,8 @@ func Register(c echo.Context) error {
 		c.Logger().Error(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
-	c.Logger().Info(string(b64))
-	if err := json.Unmarshal(b64, &data); err != nil {
+	c.Logger().Info([]byte(strings.TrimSpace(string(b64))))
+	if err := json.Unmarshal([]byte(strings.TrimSpace(string(b64))), &data); err != nil {
 		c.Logger().Error(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
