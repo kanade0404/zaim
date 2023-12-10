@@ -1,6 +1,8 @@
 package zaim
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"github.com/Code-Hex/synchro"
 	"github.com/Code-Hex/synchro/tz"
 	"github.com/labstack/echo/v4"
@@ -13,6 +15,19 @@ import (
 )
 
 type body struct {
+	PubSubMessage pubsubMessage `json:"message"`
+	Subscription  string        `json:"subscription"`
+}
+
+type pubsubMessage struct {
+	Base64EncodedData string `json:"data"`
+	MessageID         string `json:"messageId"`
+	Message_ID        string `json:"message_id"`
+	PublishTime       string `json:"publishTime"`
+	Publish_time      string `json:"publish_time"`
+}
+
+type requestData struct {
 	RunAt  *string  `json:"run_at"`
 	DryRun bool     `json:"dry_run"`
 	Users  []string `json:"users"`
@@ -25,11 +40,26 @@ type RegisterResponse struct {
 func Register(c echo.Context) error {
 	var (
 		body  body
+		data  requestData
 		runAt synchro.Time[tz.AsiaTokyo]
 	)
-	defer c.Request().Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			c.Logger().Error(err)
+		}
+	}(c.Request().Body)
 	b, err := io.ReadAll(c.Request().Body)
 	if err != nil {
+		c.Logger().Error(err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	b64, err := base64.StdEncoding.DecodeString(body.PubSubMessage.Base64EncodedData)
+	if err != nil {
+		c.Logger().Error(err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	if err := json.Unmarshal(b64, &data); err != nil {
 		c.Logger().Error(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -38,11 +68,11 @@ func Register(c echo.Context) error {
 		c.Logger().Error(err)
 		return c.JSON(400, err)
 	}
-	if body.RunAt == nil {
+	if data.RunAt == nil {
 		runAt = synchro.Now[tz.AsiaTokyo]()
 	} else {
 		var err error
-		runAt, err = synchro.Parse[tz.AsiaTokyo](time.DateOnly, *body.RunAt)
+		runAt, err = synchro.Parse[tz.AsiaTokyo](time.DateOnly, *(data.RunAt))
 		if err != nil {
 			c.Logger().Error(err)
 			return c.JSON(http.StatusBadRequest, err)
@@ -50,7 +80,7 @@ func Register(c echo.Context) error {
 	}
 	// jstNowを先月の1日にする
 	jstLastMonth := runAt.AddDate(0, -1, -runAt.Day()+1)
-	res, err := usecases.RegisterMonthlyTransactions(c, jstLastMonth.StdTime(), body.DryRun)
+	res, err := usecases.RegisterMonthlyTransactions(c, jstLastMonth.StdTime(), data.DryRun)
 	if err != nil {
 		c.Logger().Error(err)
 		return c.JSON(http.StatusInternalServerError, handlers.ErrorResponse{
