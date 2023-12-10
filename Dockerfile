@@ -1,4 +1,3 @@
-
 # Use the official golang image to create a binary.
 # This is based on Debian and sets the GOPATH to /go.
 # https://hub.docker.com/_/golang
@@ -14,7 +13,7 @@ COPY . ./
 RUN go mod download
 
 # Build the binary.
-RUN go build -mod=readonly -v -o server ./cmd/zaim/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -mod=readonly -v -o server ./cmd/zaim/main.go
 
 # Use a gcloud image based on debian:buster-slim for a lean production container.
 # https://docs.docker.com/develop/develop-images/multistage-build/#use-multi-stage-builds

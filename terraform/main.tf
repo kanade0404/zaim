@@ -63,17 +63,25 @@ module "zaim-csv-folder" {
 }
 
 module "zaim-func" {
-  source     = "./modules/service_account"
-  id         = "zaim-func"
-  roles      = ["secretmanager.secretAccessor", "storage.objectUser"]
-  project_id = var.PROJECT_ID
+  source        = "./modules/service_account"
+  id            = "zaim-func"
+  project_roles = ["secretmanager.secretAccessor", "storage.objectUser"]
+  project_id    = var.PROJECT_ID
+}
+
+module "pubsub-user" {
+  source        = "./modules/service_account"
+  id            = "zaim-pubsub"
+  service_roles = ["iam.serviceAccountTokenCreator", "run.invoker"]
+  project_id    = var.PROJECT_ID
 }
 
 
 module "pubsub" {
   source        = "./modules/pubsub"
   name          = "zaim-trigger"
-  subscriptions = [{ name : "zaim-func-trigger" }]
+  subscriptions = [{ name : "zaim-func-trigger", push : { endpoint : google_cloud_run_service.app.status[0].url, service_account_email : module.pubsub-user.email } }]
+  depends_on    = [module.pubsub-user]
 }
 
 module "scheduler" {
@@ -95,7 +103,62 @@ module "zaim-file" {
 }
 
 resource "google_artifact_registry_repository" "repo" {
-  location      = "asia-northeast1"
+  location      = local.region
   repository_id = "zaim-api"
   format        = "DOCKER"
+}
+
+resource "google_cloud_run_service" "app" {
+  location = local.region
+  name     = "zaim-api"
+  template {
+    spec {
+      service_account_name = module.zaim-func.email
+      containers {
+        image = "asia-northeast1-docker.pkg.dev/${var.PROJECT_ID}/${google_artifact_registry_repository.repo.id}/app"
+        ports {
+          container_port = 8888
+          name           = "http1"
+        }
+        dynamic "env" {
+          for_each = { "HOST" : var.RUN_HOST }
+          content {
+            name  = env.key
+            value = env.value
+          }
+        }
+      }
+    }
+  }
+  metadata {
+    annotations = {
+      "run.googleapis.com/ingress" = "internal"
+    }
+  }
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+  autogenerate_revision_name = true
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations["run.googleapis.com/operation-id"],
+      metadata[0].annotations["client.knative.dev/user-image"],
+      metadata[0].annotations["run.googleapis.com/client-name"],
+      metadata[0].annotations["run.googleapis.com/client-version"],
+      metadata[0].annotations["serving.knative.dev/creator"],
+      metadata[0].annotations["serving.knative.dev/lastModifier"],
+      metadata[0].annotations["run.googleapis.com/ingress-status"],
+      metadata[0].annotations["run.googleapis.com/launch-stage"],
+      metadata[0].labels["cloud.googleapis.com/location"],
+      status[0].latest_created_revision_name,
+      status[0].latest_ready_revision_name,
+      status[0].observed_generation,
+      template[0].metadata[0].annotations["client.knative.dev/user-image"],
+      template[0].metadata[0].annotations["run.googleapis.com/client-name"],
+      template[0].metadata[0].annotations["run.googleapis.com/client-version"],
+      template[0].metadata[0].annotations["run.googleapis.com/sandbox"],
+    ]
+  }
+  depends_on = [module.zaim-func, google_artifact_registry_repository.repo]
 }

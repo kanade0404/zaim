@@ -13,6 +13,15 @@ resource "google_pubsub_subscription" "subscription" {
       max_delivery_attempts = each.value.dead_letter_topic.max_delivery_attempts
     }
   }
+  dynamic "push_config" {
+    for_each = each.value.push == null ? [] : [1]
+    content {
+      push_endpoint = each.value.push.endpoint
+      oidc_token {
+        service_account_email = each.value.push.service_account_email
+      }
+    }
+  }
   depends_on = [google_pubsub_topic.topic]
 }
 
@@ -28,7 +37,8 @@ variable "subscriptions" {
       max_delivery_attempts = optional(number)
     }))
     push = optional(object({
-      endpoint = string
+      endpoint              = string
+      service_account_email = string
     }))
   }))
 }
