@@ -12,9 +12,9 @@ import (
 )
 
 type body struct {
-	RunAt  *string  `json:"run_at" form:"run_at"`
-	DryRun bool     `json:"dry_run" form:"dry_run"`
-	Users  []string `json:"users" form:"users"`
+	RunAt  *string  `json:"run_at"`
+	DryRun bool     `json:"dry_run"`
+	Users  []string `json:"users"`
 }
 
 type RegisterResponse struct {
