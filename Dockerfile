@@ -2,7 +2,7 @@
 # Use the official golang image to create a binary.
 # This is based on Debian and sets the GOPATH to /go.
 # https://hub.docker.com/_/golang
-FROM golang:1.21-buster as builder
+FROM golang:1.21 as builder
 
 # Create and change to the app directory.
 WORKDIR /app
@@ -24,8 +24,6 @@ WORKDIR /app
 
 # Copy the binary to the production image from the builder stage.
 COPY --from=builder /app/server /app/server
-COPY *.sh /app/
-RUN chmod +x /app/*.sh
 
 # Run the web service on container startup.
 CMD ["/app/server"]

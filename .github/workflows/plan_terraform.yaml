@@ -5,18 +5,21 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  WORKING_DIRECTORY: ./terraform
+
 permissions:
   contents: read
-  pages: write
   id-token: write
   pull-requests: write
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./terraform
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        shell: bash
 
     steps:
       - name: Checkout
@@ -30,13 +33,11 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - uses: aquaproj/aqua-installer@v2.2.0
         with:
           aqua_version: v2.16.4
-          working_directory: /terraform
+          working_directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Terraform Format
         id: fmt
@@ -60,6 +61,5 @@ jobs:
         run: tfsec .
         continue-on-error: true
 
-
       - name: Terraform Plan
-        run: tfcmt plan -patch -- terraform plan -no-color -input=false
+        run: tfcmt plan -patch -- terraform plan -no-color -input=false -var='PROJECT_ID=${{ secrets.TF_PROJECT_ID }}' -var='USERS_SECRET=${{ secrets.TF_USERS_SECRET }}'
