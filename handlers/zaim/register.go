@@ -49,8 +49,7 @@ func Register(c echo.Context) error {
 			c.Logger().Error(err)
 		}
 	}(c.Request().Body)
-	b, err := io.ReadAll(c.Request().Body)
-	if err != nil {
+	if err := c.Bind(&body); err != nil {
 		c.Logger().Error(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -62,11 +61,6 @@ func Register(c echo.Context) error {
 	if err := json.Unmarshal(b64, &data); err != nil {
 		c.Logger().Error(err)
 		return c.JSON(http.StatusBadRequest, err)
-	}
-	c.Logger().Info(string(b))
-	if err := c.Bind(&body); err != nil {
-		c.Logger().Error(err)
-		return c.JSON(400, err)
 	}
 	if data.RunAt == nil {
 		runAt = synchro.Now[tz.AsiaTokyo]()
