@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/dghubble/oauth1"
@@ -35,6 +36,19 @@ const authorizeURL = "https://auth.zaim.net/users/auth"
 var accessURL = fmt.Sprintf(providerBaseURL, "access")
 
 type body struct {
+	PubSubMessage pubsubMessage `json:"message"`
+	Subscription  string        `json:"subscription"`
+}
+
+type pubsubMessage struct {
+	Base64EncodedData string `json:"data"`
+	MessageID         string `json:"messageId"`
+	Message_ID        string `json:"message_id"`
+	PublishTime       string `json:"publishTime"`
+	Publish_time      string `json:"publish_time"`
+}
+
+type requestData struct {
 	Users []string `json:"users"`
 }
 
@@ -54,7 +68,17 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 			c.Logger().Error(err)
 			return c.JSON(http.StatusBadRequest, err)
 		}
-		users := body.Users
+		b64, err := base64.StdEncoding.DecodeString(body.PubSubMessage.Base64EncodedData)
+		if err != nil {
+			c.Logger().Error(err)
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		var data requestData
+		if err := json.Unmarshal(b64, &data); err != nil {
+			c.Logger().Error(err)
+			return c.JSON(http.StatusBadRequest, err)
+		}
+		users := data.Users
 		secretDriver, err := secret_manager.NewDriver(ctx)
 		if err != nil {
 			c.Logger().Error(err)
