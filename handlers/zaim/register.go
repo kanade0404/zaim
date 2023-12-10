@@ -58,6 +58,7 @@ func Register(c echo.Context) error {
 		c.Logger().Error(err)
 		return c.JSON(http.StatusBadRequest, err)
 	}
+	c.Logger().Info(string(b64))
 	if err := json.Unmarshal(b64, &data); err != nil {
 		c.Logger().Error(err)
 		return c.JSON(http.StatusBadRequest, err)

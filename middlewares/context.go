@@ -55,6 +55,7 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			c.Logger().Fatal(err)
 		}
+		c.Logger().Info(string(b))
 		if err := json.Unmarshal(b, &body); err != nil {
 			c.Logger().Fatal(err)
 		}
