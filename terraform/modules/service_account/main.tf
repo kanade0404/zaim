@@ -19,3 +19,6 @@ variable "roles" {
 variable "project_id" {
   type = string
 }
+output "email" {
+  value = google_service_account.account.email
+}

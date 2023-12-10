@@ -99,3 +99,44 @@ resource "google_artifact_registry_repository" "repo" {
   repository_id = "zaim-api"
   format        = "DOCKER"
 }
+resource "google_cloud_run_service" "app" {
+  location = "asia-northeast1"
+  name     = "zaim-api"
+  template {
+    spec {
+      service_account_name = module.zaim-func.email
+      containers {
+        image = "asia-northeast1-docker.pkg.dev/${var.PROJECT_ID}/${google_artifact_registry_repository.repo.id}/app"
+        ports {
+          container_port = 8888
+          name           = "http1"
+        }
+      }
+    }
+  }
+  traffic {
+    percent         = 100
+    latest_revision = true
+  }
+  autogenerate_revision_name = true
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations["run.googleapis.com/operation-id"],
+      metadata[0].annotations["client.knative.dev/user-image"],
+      metadata[0].annotations["run.googleapis.com/client-name"],
+      metadata[0].annotations["run.googleapis.com/client-version"],
+      metadata[0].annotations["serving.knative.dev/creator"],
+      metadata[0].annotations["serving.knative.dev/lastModifier"],
+      metadata[0].annotations["run.googleapis.com/ingress-status"],
+      metadata[0].annotations["run.googleapis.com/launch-stage"],
+      metadata[0].labels["cloud.googleapis.com/location"],
+      status[0].latest_created_revision_name,
+      status[0].latest_ready_revision_name,
+      status[0].observed_generation,
+      template[0].metadata[0].annotations["client.knative.dev/user-image"],
+      template[0].metadata[0].annotations["run.googleapis.com/client-name"],
+      template[0].metadata[0].annotations["run.googleapis.com/client-version"],
+      template[0].metadata[0].annotations["run.googleapis.com/sandbox"],
+    ]
+  }
+}
