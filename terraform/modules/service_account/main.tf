@@ -3,11 +3,11 @@ resource "google_service_account" "account" {
 }
 
 resource "google_project_iam_member" "iam" {
-  for_each           = toset(var.roles)
-  member             = "serviceAccount:${google_service_account.account.email}"
-  role               = "roles/${each.value}"
-  project            = var.project_id
-  depends_on         = [google_service_account.account]
+  for_each   = toset(var.roles)
+  member     = "serviceAccount:${google_service_account.account.email}"
+  role       = "roles/${each.value}"
+  project    = var.project_id
+  depends_on = [google_service_account.account]
 }
 
 variable "id" {

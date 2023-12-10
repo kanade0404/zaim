@@ -34,17 +34,19 @@ jobs:
         uses: google-github-actions/setup-gcloud@v0
 
       - name: Authorize Docker push
-        run: gcloud auth configure-docker
+        run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 
       - name: Build Docker
-        run: docker build -t asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/api:${{ github.sha }} .
+        run: docker build -t asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ github.sha }} .
 
       - name: Push Docker
-        run: docker build -t asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/api:${{ github.sha }} .
+        run: docker push asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ github.sha }}
 
       - name: Deploy Docker
         run: |
           gcloud run deploy zaim-api \
           --project=kanade0404 \
           --image asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ github.sha }} \
-          --service-account zaim-func
+          --service-account zaim-func \
+          --platform=managed \
+          --region=asia-northeast1
