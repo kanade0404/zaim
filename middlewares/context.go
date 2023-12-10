@@ -42,17 +42,9 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		c.Logger().Info("start middleware/context")
 		defer c.Logger().Info("end middleware/context")
-		// 後続でstreamを消費しないようにする
-		req := c.Request()
-		ctx := req.Context()
+		ctx := c.Request().Context()
 		var body body
-		defer func(Body io.ReadCloser) {
-			err := Body.Close()
-			if err != nil {
-				c.Logger().Error(err)
-			}
-		}(req.Body)
-		b, err := io.ReadAll(req.Body)
+		b, err := io.ReadAll(c.Request().Body)
 		if err != nil {
 			c.Logger().Error(err)
 			return c.JSON(http.StatusBadRequest, err)
@@ -113,8 +105,9 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 				CsvFolder: csvFolder,
 			}
 		}
+		// 後続でstreamを消費しないようにする
+		c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
 		c.Logger().Debugf("configs: %v", configs)
-		req.Body = io.NopCloser(bytes.NewBuffer(b))
 		return next(&CustomContext{c, configs})
 	}
 }
