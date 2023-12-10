@@ -4,6 +4,7 @@ import (
 	"github.com/Code-Hex/synchro"
 	"github.com/Code-Hex/synchro/tz"
 	"github.com/labstack/echo/v4"
+	"io"
 	"net/http"
 	"time"
 	"zaim/handlers"
@@ -26,6 +27,13 @@ func Register(c echo.Context) error {
 		body  body
 		runAt synchro.Time[tz.AsiaTokyo]
 	)
+	defer c.Request().Body.Close()
+	b, err := io.ReadAll(c.Request().Body)
+	if err != nil {
+		c.Logger().Error(err)
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	c.Logger().Info(string(b))
 	if err := c.Bind(&body); err != nil {
 		c.Logger().Error(err)
 		return c.JSON(400, err)
