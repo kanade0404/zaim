@@ -72,7 +72,8 @@ module "zaim-func" {
 module "pubsub-user" {
   source        = "./modules/service_account"
   id            = "zaim-pubsub"
-  service_roles = ["iam.serviceAccountTokenCreator", "run.invoker"]
+  project_roles = ["run.invoker"]
+  service_roles = ["iam.serviceAccountTokenCreator"]
   project_id    = var.PROJECT_ID
 }
 
@@ -115,7 +116,7 @@ resource "google_cloud_run_service" "app" {
     spec {
       service_account_name = module.zaim-func.email
       containers {
-        image = "asia-northeast1-docker.pkg.dev/${var.PROJECT_ID}/${google_artifact_registry_repository.repo.id}/app"
+        image = "asia-northeast1-docker.pkg.dev/${var.PROJECT_ID}/${google_artifact_registry_repository.repo.name}/app"
         ports {
           container_port = 8888
           name           = "http1"
