@@ -1,9 +1,12 @@
 package middlewares
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/dghubble/oauth1"
 	"github.com/labstack/echo/v4"
+	"io"
 	"os"
 	"zaim/infrastructures/secret_manager"
 )
@@ -38,9 +41,21 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		c.Logger().Info("start middleware/context")
 		defer c.Logger().Info("end middleware/context")
-		ctx := c.Request().Context()
+		// 後続でstreamを消費しないようにする
+		req := c.Request()
+		ctx := req.Context()
 		var body body
-		if err := c.Bind(&body); err != nil {
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				c.Logger().Error(err)
+			}
+		}(req.Body)
+		b, err := io.ReadAll(req.Body)
+		if err != nil {
+			c.Logger().Fatal(err)
+		}
+		if err := json.Unmarshal(b, &body); err != nil {
 			c.Logger().Fatal(err)
 		}
 		users := body.Users
@@ -89,6 +104,7 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 		c.Logger().Debugf("configs: %v", configs)
+		req.Body = io.NopCloser(bytes.NewBuffer(b))
 		return next(&CustomContext{c, configs})
 	}
 }
