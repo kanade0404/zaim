@@ -61,8 +61,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
 
       - name: Check tfsec
-        run: tfsec .
-        continue-on-error: true
+        run: tfsec --config-file tfsec.yaml .
 
       - name: Terraform Apply
-        run: tfcmt apply -- terraform apply -no-color -auto-approve -var='PROJECT_ID=${{ secrets.TF_PROJECT_ID }}' -var='USERS_SECRET=${{ secrets.TF_USERS_SECRET }}'
+        run: tfcmt apply -- terraform apply -no-color -auto-approve -var='PROJECT_ID=${{ secrets.TF_PROJECT_ID }}' -var='USERS_SECRET=${{ secrets.TF_USERS_SECRET }}' -var='RUN_HOST=${{ secrets.TF_RUN_HOST }}'
