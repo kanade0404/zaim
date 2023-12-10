@@ -92,6 +92,7 @@ module "scheduler" {
     topic_name = module.pubsub.topic_id
     data = base64encode(jsonencode({
       "users" : keys(var.USERS_SECRET),
+      "dry_run" : false,
     }))
   }
   schedule = "0 0 2 * *"

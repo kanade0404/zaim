@@ -12,8 +12,8 @@ import (
 )
 
 type body struct {
-	RunAt  string `json:"run_at" form:"run_at"`
-	DryRun bool   `json:"dry_run" form:"dry_run"`
+	RunAt  *string `json:"run_at" form:"run_at"`
+	DryRun bool    `json:"dry_run" form:"dry_run"`
 }
 
 type RegisterResponse struct {
@@ -21,13 +21,21 @@ type RegisterResponse struct {
 }
 
 func Register(c echo.Context) error {
-	var body body
+	var (
+		body  body
+		runAt synchro.Time[tz.AsiaTokyo]
+	)
 	if err := c.Bind(&body); err != nil {
 		return c.JSON(400, err)
 	}
-	runAt, err := synchro.Parse[tz.AsiaTokyo](time.DateOnly, body.RunAt)
-	if err != nil {
-		return err
+	if body.RunAt == nil {
+		runAt = synchro.Now[tz.AsiaTokyo]()
+	} else {
+		var err error
+		runAt, err = synchro.Parse[tz.AsiaTokyo](time.DateOnly, *body.RunAt)
+		if err != nil {
+			return err
+		}
 	}
 	// jstNowを先月の1日にする
 	jstLastMonth := runAt.AddDate(0, -1, -runAt.Day()+1)
