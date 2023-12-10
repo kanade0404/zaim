@@ -7,6 +7,7 @@ import (
 	"github.com/dghubble/oauth1"
 	"github.com/labstack/echo/v4"
 	"io"
+	"net/http"
 	"os"
 	"zaim/infrastructures/secret_manager"
 )
@@ -53,38 +54,46 @@ func Context(next echo.HandlerFunc) echo.HandlerFunc {
 		}(req.Body)
 		b, err := io.ReadAll(req.Body)
 		if err != nil {
-			c.Logger().Fatal(err)
+			c.Logger().Error(err)
+			return c.JSON(http.StatusBadRequest, err)
 		}
 		c.Logger().Info(string(b))
 		if err := json.Unmarshal(b, &body); err != nil {
-			c.Logger().Fatal(err)
+			c.Logger().Error(err)
+			return c.JSON(http.StatusBadRequest, err)
 		}
 		users := body.Users
 		secretDriver, err := secret_manager.NewDriver(ctx)
 		if err != nil {
-			c.Logger().Fatal(err)
+			c.Logger().Error(err)
+			return c.JSON(http.StatusBadRequest, err)
 		}
 		configs := make(map[string]Zaim, len(users))
 		for _, user := range users {
 			consumerKey, err := secretDriver.GetConsumerKey(user)
 			if err != nil {
-				c.Logger().Fatal(err)
+				c.Logger().Error(err)
+				return c.JSON(http.StatusBadRequest, err)
 			}
 			consumerSecret, err := secretDriver.GetConsumerSecret(user)
 			if err != nil {
-				c.Logger().Fatal(err)
+				c.Logger().Error(err)
+				return c.JSON(http.StatusBadRequest, err)
 			}
 			oauthToken, err := secretDriver.GetOAuthToken(user)
 			if err != nil {
-				c.Logger().Fatal(err)
+				c.Logger().Error(err)
+				return c.JSON(http.StatusBadRequest, err)
 			}
 			oauthSecret, err := secretDriver.GetOAuthSecret(user)
 			if err != nil {
-				c.Logger().Fatal(err)
+				c.Logger().Error(err)
+				return c.JSON(http.StatusBadRequest, err)
 			}
 			csvFolder, err := secretDriver.GetCsvFolder(user)
 			if err != nil {
-				c.Logger().Fatal(err)
+				c.Logger().Error(err)
+				return c.JSON(http.StatusBadRequest, err)
 			}
 			configs[user] = Zaim{
 				OAuthConfig: &oauth1.Config{
