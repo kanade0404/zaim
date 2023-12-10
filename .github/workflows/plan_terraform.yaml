@@ -58,7 +58,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
 
       - name: Check tfsec
-        run: tfsec .
+        run: tfsec --config-file tfsec.yaml .
         continue-on-error: true
 
       - name: Terraform Plan

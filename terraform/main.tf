@@ -63,17 +63,25 @@ module "zaim-csv-folder" {
 }
 
 module "zaim-func" {
-  source     = "./modules/service_account"
-  id         = "zaim-func"
-  roles      = ["secretmanager.secretAccessor", "storage.objectUser"]
-  project_id = var.PROJECT_ID
+  source        = "./modules/service_account"
+  id            = "zaim-func"
+  project_roles = ["secretmanager.secretAccessor", "storage.objectUser"]
+  project_id    = var.PROJECT_ID
+}
+
+module "pubsub-user" {
+  source        = "./modules/service_account"
+  id            = "zaim-pubsub"
+  service_roles = ["iam.serviceAccountTokenCreator", "run.invoker"]
+  project_id    = var.PROJECT_ID
 }
 
 
 module "pubsub" {
   source        = "./modules/pubsub"
   name          = "zaim-trigger"
-  subscriptions = [{ name : "zaim-func-trigger" }]
+  subscriptions = [{ name : "zaim-func-trigger", push : { endpoint : google_cloud_run_service.app.status[0].url, service_account_email : module.pubsub-user.email } }]
+  depends_on    = [module.pubsub-user]
 }
 
 module "scheduler" {
@@ -95,12 +103,13 @@ module "zaim-file" {
 }
 
 resource "google_artifact_registry_repository" "repo" {
-  location      = "asia-northeast1"
+  location      = local.region
   repository_id = "zaim-api"
   format        = "DOCKER"
 }
+
 resource "google_cloud_run_service" "app" {
-  location = "asia-northeast1"
+  location = local.region
   name     = "zaim-api"
   template {
     spec {
@@ -111,7 +120,19 @@ resource "google_cloud_run_service" "app" {
           container_port = 8888
           name           = "http1"
         }
+        dynamic "env" {
+          for_each = { "HOST" : var.RUN_HOST }
+          content {
+            name  = env.key
+            value = env.value
+          }
+        }
       }
+    }
+  }
+  metadata {
+    annotations = {
+      "run.googleapis.com/ingress" = "internal"
     }
   }
   traffic {
@@ -139,4 +160,5 @@ resource "google_cloud_run_service" "app" {
       template[0].metadata[0].annotations["run.googleapis.com/sandbox"],
     ]
   }
+  depends_on = [module.zaim-func, google_artifact_registry_repository.repo]
 }

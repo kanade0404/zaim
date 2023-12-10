@@ -47,6 +47,6 @@ jobs:
           gcloud run deploy zaim-api \
           --project=kanade0404 \
           --image asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ github.sha }} \
-          --service-account zaim-func \
+          --service-account zaim-func@kanade0404.iam.gserviceaccount.com \
           --platform=managed \
           --region=asia-northeast1

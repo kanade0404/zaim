@@ -14,6 +14,10 @@ variable "USERS_SECRET" {
   }))
 }
 
+variable "RUN_HOST" {
+  type = string
+}
+
 locals {
   region = "asia-northeast1"
 }

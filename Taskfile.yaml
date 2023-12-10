@@ -9,6 +9,9 @@ tasks:
   docker-build:
     cmds:
       - docker compose build
+  docker-exec:
+    cmds:
+      - docker compose exec terraform bash
   docker-down:
     cmds:
       - docker compose down
@@ -32,5 +35,5 @@ tasks:
       - docker compose exec terraform terraform fmt -recursive
       - docker compose exec terraform terraform fmt -recursive -check
       - docker compose exec terraform terraform validate -no-color
-      - docker compose exec terraform tfsec .
+      - docker compose exec terraform tfsec --config-file tfsec.yaml .
       - docker compose exec terraform tflint
