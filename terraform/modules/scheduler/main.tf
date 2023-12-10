@@ -1,12 +1,12 @@
 resource "google_cloud_scheduler_job" "scheduler" {
-  name = var.name
+  name        = var.name
   description = var.description
-  schedule = var.schedule
+  schedule    = var.schedule
   dynamic "pubsub_target" {
-    for_each = var.pubsub_target == null? []: [1]
+    for_each = var.pubsub_target == null ? [] : [1]
     content {
       topic_name = var.pubsub_target.topic_name
-      data = tostring(var.pubsub_target.data)
+      data       = tostring(var.pubsub_target.data)
     }
   }
   time_zone = "Asia/Tokyo"
@@ -21,14 +21,14 @@ variable "schedule" {
 }
 
 variable "description" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "pubsub_target" {
   type = object({
     topic_name = string
-    data = any
+    data       = any
   })
   default = null
 }
