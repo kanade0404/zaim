@@ -79,10 +79,18 @@ module "pubsub-user" {
 
 
 module "pubsub" {
-  source        = "./modules/pubsub"
-  name          = "zaim-trigger"
-  subscriptions = [{ name : "zaim-func-trigger", push : { endpoint : google_cloud_run_service.app.status[0].url, service_account_email : module.pubsub-user.email } }]
-  depends_on    = [module.pubsub-user]
+  source = "./modules/pubsub"
+  name   = "zaim-trigger"
+  subscriptions = [
+    {
+      name : "zaim-func-trigger",
+      push : {
+        endpoint : "${google_cloud_run_service.app.status[0].url}/transaction",
+        service_account_email : module.pubsub-user.email
+      }
+    }
+  ]
+  depends_on = [module.pubsub-user]
 }
 
 module "scheduler" {
