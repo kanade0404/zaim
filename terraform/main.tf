@@ -72,7 +72,8 @@ module "zaim-func" {
 module "pubsub-user" {
   source        = "./modules/service_account"
   id            = "zaim-pubsub"
-  service_roles = ["iam.serviceAccountTokenCreator", "run.invoker"]
+  project_roles = ["run.invoker"]
+  service_roles = ["iam.serviceAccountTokenCreator"]
   project_id    = var.PROJECT_ID
 }
 
