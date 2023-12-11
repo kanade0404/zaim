@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"zaim/infrastructures/zaim"
 )
 
@@ -15,7 +16,7 @@ func GetCategoryByUserName(ctx context.Context, userName string) ([]zaim.Categor
 	if err != nil {
 		return nil, err
 	}
-	data, err := gcsDriver.Download("zaim", "category.json")
+	data, err := gcsDriver.Download(os.Getenv("BUCKET_NAME"), "category.json")
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +40,7 @@ func PutCategory(ctx context.Context, categories Categories) error {
 	if err := json.NewEncoder(buf).Encode(categories); err != nil {
 		return err
 	}
-	if err := gcsDriver.Upload("zaim", "category.json", buf); err != nil {
+	if err := gcsDriver.Upload(os.Getenv("BUCKET_NAME"), "category.json", buf); err != nil {
 		return err
 	}
 	return nil

@@ -20,6 +20,7 @@ func NewDriver(ctx context.Context) (*Driver, error) {
 	}
 	return &Driver{client, ctx}, nil
 }
+
 func (d *Driver) Upload(bucketName, objectPath string, obj io.Reader) error {
 	writer := d.Client.Bucket(bucketName).Object(objectPath).NewWriter(d.ctx)
 	defer func(reader *storage.Writer) {

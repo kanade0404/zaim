@@ -16,3 +16,7 @@ variable "uniform_bucket_level_access" {
   type    = bool
   default = true
 }
+
+output "name" {
+  value = google_storage_bucket.bucket.name
+}
