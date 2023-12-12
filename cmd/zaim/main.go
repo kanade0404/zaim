@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 	"zaim/handlers/zaim"
 	"zaim/middlewares"
 )
@@ -15,6 +16,7 @@ func initialize() {
 	e.Use(middlewares.Context)
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Logger.SetLevel(log.INFO)
 	auth := e.Group("/auth")
 	auth.GET("/", zaim.Authorization)
 	auth.GET("/callback", zaim.CallbackOAuthToken)

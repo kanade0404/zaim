@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 )
 
 type GenreMappings map[string]GenreContentMappings
@@ -18,7 +19,7 @@ func GetGenreMappingByUserName(ctx context.Context, userName string) (GenreConte
 	if err != nil {
 		return nil, err
 	}
-	data, err := gcsDriver.Download("zaim", "genre_mappings.json")
+	data, err := gcsDriver.Download(os.Getenv("BUCKET_NAME"), "genre_mappings.json")
 	if err != nil {
 		return nil, err
 	}

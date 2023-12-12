@@ -131,7 +131,7 @@ resource "google_cloud_run_service" "app" {
           name           = "http1"
         }
         dynamic "env" {
-          for_each = { "HOST" : var.RUN_HOST }
+          for_each = { "HOST" : var.RUN_HOST, "PROJECT_ID" : var.PROJECT_ID, "BUCKET_NAME" : module.zaim-file.name }
           content {
             name  = env.key
             value = env.value
@@ -142,7 +142,7 @@ resource "google_cloud_run_service" "app" {
   }
   metadata {
     annotations = {
-      "run.googleapis.com/ingress" = "internal"
+      "run.googleapis.com/ingress" = "all"
     }
   }
   traffic {

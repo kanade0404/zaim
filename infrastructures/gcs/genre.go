@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"zaim/infrastructures/zaim"
 )
 
@@ -15,7 +16,7 @@ func GetGenreByUserName(ctx context.Context, userName string) ([]zaim.Genre, err
 	if err != nil {
 		return nil, err
 	}
-	data, err := gcsDriver.Download("zaim", "genre.json")
+	data, err := gcsDriver.Download(os.Getenv("BUCKET_NAME"), "genre.json")
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +40,7 @@ func PutGenre(ctx context.Context, genres Genres) error {
 	if err := json.NewEncoder(buf).Encode(genres); err != nil {
 		return err
 	}
-	if err := gcsDriver.Upload("zaim", "genre.json", buf); err != nil {
+	if err := gcsDriver.Upload(os.Getenv("BUCKET_NAME"), "genre.json", buf); err != nil {
 		return err
 	}
 	return nil

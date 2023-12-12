@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 )
 
 type ContentMappings map[string]ContentContentMappings
@@ -18,7 +19,7 @@ func GetContentMappingByUserName(ctx context.Context, userName string) (ContentC
 	if err != nil {
 		return nil, err
 	}
-	data, err := gcsDriver.Download("zaim", "content_mappings.json")
+	data, err := gcsDriver.Download(os.Getenv("BUCKET_NAME"), "content_mappings.json")
 	if err != nil {
 		return nil, err
 	}
