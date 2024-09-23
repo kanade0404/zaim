@@ -2,30 +2,38 @@
 
 version: '3'
 
+
 tasks:
   auth:
     cmds:
       - gcloud auth login
       - gcloud auth application-default login
   init:
+    dir: ./../terraform
     cmds:
       - terraform init
   upgrade:
+    dir: ./../terraform
     cmds:
       - terraform init -upgrade
   plan:
+    dir: ./../terraform
     cmds:
       - terraform plan
   apply:
+    dir: ./../terraform
     cmds:
       - terraform apply
   encrypt:
+    dir: ./../terraform
     cmds:
       - gcloud kms encrypt --location "asia-northeast1" --keyring "infra" --key "infra" --plaintext-file ./terraform.tfvars --ciphertext-file ./terraform.tfvars.enc
   decrypt:
+    dir: ./../terraform
     cmds:
       - gcloud kms decrypt --location "asia-northeast1" --keyring "infra" --key "infra" --plaintext-file ./terraform.tfvars --ciphertext-file ./terraform.tfvars.enc
   check:
+    dir: ./../terraform
     cmds:
       - terraform fmt -recursive
       - terraform fmt -recursive -check
