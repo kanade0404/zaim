@@ -42,6 +42,9 @@ jobs:
           aqua_version: v2.16.4
           working_directory: ${{ env.WORKING_DIRECTORY }}
 
+      - name: Decrypt terraform.tfvars
+        run: gcloud kms decrypt --location "asia-northeast1" --keyring "infra" --key "infra" --plaintext-file ./terraform.tfvars --ciphertext-file ./terraform.tfvars.enc
+
       - name: Terraform Format
         id: fmt
         run: terraform fmt -recursive -check
@@ -64,4 +67,4 @@ jobs:
         run: tfsec --config-file tfsec.yaml .
 
       - name: Terraform Apply
-        run: tfcmt apply -- terraform apply -no-color -auto-approve -var='PROJECT_ID=${{ secrets.TF_PROJECT_ID }}' -var='USERS_SECRET=${{ secrets.TF_USERS_SECRET }}' -var='RUN_HOST=${{ secrets.TF_RUN_HOST }}'
+        run: tfcmt apply -- terraform apply -no-color -auto-approve -input=false

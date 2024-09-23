@@ -1,22 +1,14 @@
 version: "3.8"
 
 services:
-  redis:
-    image: redis:latest
+  db:
+    container_name: zaim-db
+    image: postgres:latest
     ports:
-      - "6379:6379"
+      - "5434:5432"
+    environment:
+      POSTGRES_DB: zaim
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     volumes:
-      - ./database/redis/data:/data
-  terraform:
-     container_name: zaim-terraform
-     build:
-       context: ./terraform
-       dockerfile: Dockerfile
-     working_dir: /terraform
-     tty: true
-     volumes:
-       - ./terraform:/terraform:cached
-       - /var/run/docker.sock:/var/run/docker.sock
-     entrypoint: bash
-     environment:
-       HOME: "/terraform"
+      - ./server/database/data:/var/lib/postgresql/data

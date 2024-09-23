@@ -1,0 +1,35 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  auth:
+    cmds:
+      - gcloud auth login
+      - gcloud auth application-default login
+  init:
+    cmds:
+      - terraform init
+  upgrade:
+    cmds:
+      - terraform init -upgrade
+  plan:
+    cmds:
+      - terraform plan
+  apply:
+    cmds:
+      - terraform apply
+  encrypt:
+    cmds:
+      - gcloud kms encrypt --location "asia-northeast1" --keyring "infra" --key "infra" --plaintext-file ./terraform.tfvars --ciphertext-file ./terraform.tfvars.enc
+  decrypt:
+    cmds:
+      - gcloud kms decrypt --location "asia-northeast1" --keyring "infra" --key "infra" --plaintext-file ./terraform.tfvars --ciphertext-file ./terraform.tfvars.enc
+  check:
+    cmds:
+      - terraform fmt -recursive
+      - terraform fmt -recursive -check
+      - terraform validate -no-color
+      - tfsec --config-file tfsec.yaml .
+      - tflint
+

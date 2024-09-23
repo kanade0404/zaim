@@ -3,7 +3,7 @@ terraform {
     bucket = "tfstate-kanade0404-070dc2e4-a61e-e22d-2010-d15e23acf81d"
     prefix = "zaim"
   }
-  required_version = "1.6.5"
+  required_version = "1.9.6"
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -69,43 +69,6 @@ module "zaim-func" {
   project_id    = var.PROJECT_ID
 }
 
-module "pubsub-user" {
-  source        = "./modules/service_account"
-  id            = "zaim-pubsub"
-  project_roles = ["run.invoker"]
-  service_roles = ["iam.serviceAccountTokenCreator"]
-  project_id    = var.PROJECT_ID
-}
-
-
-module "pubsub" {
-  source = "./modules/pubsub"
-  name   = "zaim-trigger"
-  subscriptions = [
-    {
-      name : "zaim-func-trigger",
-      push : {
-        endpoint : "${google_cloud_run_service.app.status[0].url}/transaction",
-        service_account_email : module.pubsub-user.email
-      }
-    }
-  ]
-  depends_on = [module.pubsub-user]
-}
-
-module "scheduler" {
-  source = "./modules/scheduler"
-  name   = "zaim"
-  pubsub_target = {
-    topic_name = module.pubsub.topic_id
-    data = base64encode(jsonencode({
-      "users" : keys(var.USERS_SECRET),
-      "dry_run" : false,
-    }))
-  }
-  schedule = "0 0 2 * *"
-}
-
 module "zaim-file" {
   source   = "./modules/gcs"
   location = "ASIA-NORTHEAST1"
@@ -131,7 +94,7 @@ resource "google_cloud_run_service" "app" {
           name           = "http1"
         }
         dynamic "env" {
-          for_each = { "HOST" : var.RUN_HOST, "PROJECT_ID" : var.PROJECT_ID, "BUCKET_NAME" : module.zaim-file.name }
+          for_each = { "HOST" : var.RUN_HOST, "PROJECT_ID" : var.PROJECT_ID, "BUCKET_NAME" : module.zaim-file.name, "DATABASE_URL" : var.DATABASE_URL, "ENV": "prd" }
           content {
             name  = env.key
             value = env.value
