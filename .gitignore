@@ -20,6 +20,6 @@
 
 # Go workspace file
 go.work
-.env
+server/.env
 tmp
-database
+database/*.json

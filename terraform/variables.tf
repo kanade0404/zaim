@@ -14,7 +14,15 @@ variable "USERS_SECRET" {
   }))
 }
 
+variable "SLACK_API_TOKEN" {
+  type = string
+}
+
 variable "RUN_HOST" {
+  type = string
+}
+
+variable "DATABASE_URL" {
   type = string
 }
 

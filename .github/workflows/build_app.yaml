@@ -11,12 +11,14 @@ permissions:
   id-token: write
   pull-requests: write
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ./server
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,7 +38,7 @@ jobs:
       - name: setup-go
         uses: actions/setup-go@v5
         with:
-          go-version-file: ./go.mod
+          go-version-file: ./server/go.mod
 
       - name: Download Go Modules
         run: go mod download
@@ -48,7 +50,4 @@ jobs:
         run: go build -o ./bin/zaim-api ./cmd/zaim/main.go
 
       - name: Build Docker
-        run: docker build -t asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ github.sha }} .
-
-      - name: Push Docker
-        run: docker push asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ github.sha }}
+        run: docker build -t asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ github.sha }} . -f ./docker/prd/Dockerfile

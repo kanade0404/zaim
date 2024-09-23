@@ -34,10 +34,13 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - uses: aquaproj/aqua-installer@v2.2.0
+      - uses: aquaproj/aqua-installer@v3.0.1
         with:
-          aqua_version: v2.16.4
+          aqua_version: v2.28.0
           working_directory: ${{ env.WORKING_DIRECTORY }}
+
+      - name: Decrypt terraform.tfvars
+        run: gcloud kms decrypt --location "asia-northeast1" --keyring "infra" --key "infra" --plaintext-file ./terraform.tfvars --ciphertext-file ./terraform.tfvars.enc
 
       - name: Terraform Format
         id: fmt
@@ -45,11 +48,9 @@ jobs:
         continue-on-error: true
 
       - name: Terraform Init
-        id: init
         run: terraform init
 
       - name: Terraform Validate
-        id: validate
         run: terraform validate -no-color
 
       - name: tflint
@@ -61,4 +62,4 @@ jobs:
         run: tfsec --config-file tfsec.yaml .
 
       - name: Terraform Plan
-        run: tfcmt plan -patch -- terraform plan -no-color -input=false -var='PROJECT_ID=${{ secrets.TF_PROJECT_ID }}' -var='USERS_SECRET=${{ secrets.TF_USERS_SECRET }}' -var='RUN_HOST=${{ secrets.TF_RUN_HOST }}'
+        run: tfcmt plan -patch -- terraform plan -no-color -input=false
