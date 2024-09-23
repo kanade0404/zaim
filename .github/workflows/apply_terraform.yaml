@@ -15,14 +15,14 @@ permissions:
   id-token: write
   pull-requests: write
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ./terraform
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./terraform
 
     steps:
       - name: Checkout
@@ -37,9 +37,9 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - uses: aquaproj/aqua-installer@v2.2.0
+      - uses: aquaproj/aqua-installer@v3.0.1
         with:
-          aqua_version: v2.16.4
+          aqua_version: v2.28.0
           working_directory: ${{ env.WORKING_DIRECTORY }}
 
       - name: Decrypt terraform.tfvars
