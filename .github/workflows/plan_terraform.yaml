@@ -2,6 +2,9 @@ name: 'Plan Terraform'
 
 on:
   pull_request:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/plan_terraform.yaml'
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

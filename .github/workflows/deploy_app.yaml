@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'server/**'
+      - '.github/workflows/deploy_app.yaml'
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
