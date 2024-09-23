@@ -14,7 +14,7 @@ require (
 	github.com/labstack/gommon v0.4.2
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.33.0
 	github.com/uptrace/bun v1.2.3
-	github.com/uptrace/bun/dialect/pgdialect v1.2.1
+	github.com/uptrace/bun/dialect/pgdialect v1.2.3
 	github.com/uptrace/bun/driver/pgdriver v1.2.3
 	github.com/uptrace/bun/extra/bundebug v1.1.17
 	go.uber.org/zap v1.24.0
