@@ -38,10 +38,12 @@ jobs:
       - name: Authorize Docker push
         run: gcloud auth configure-docker asia-northeast1-docker.pkg.dev
 
+      - run: ls -la
+
       - name: setup-go
         uses: actions/setup-go@v5
         with:
-          go-version-file: ./go.mod
+          go-version-file: go.mod
 
       - name: Download Go Modules
         run: go mod download
