@@ -11,6 +11,11 @@ permissions:
   id-token: write
   pull-requests: write
 
+defaults:
+  run:
+    shell: bash
+    working-directory: ./server
+
 jobs:
   build:
     runs-on: ubuntu-latest
