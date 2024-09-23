@@ -16,6 +16,7 @@ variable "USERS_SECRET" {
 
 variable "SLACK_API_TOKEN" {
   type = string
+  sensitive = true
 }
 
 variable "RUN_HOST" {
@@ -24,6 +25,7 @@ variable "RUN_HOST" {
 
 variable "DATABASE_URL" {
   type = string
+  sensitive = true
 }
 
 locals {
