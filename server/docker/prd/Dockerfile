@@ -9,7 +9,7 @@ WORKDIR /app
 # Retrieve application dependencies.
 # This allows the container build to reuse cached dependencies.
 # Expecting to copy go.mod and if present go.sum.
-COPY ../../.. ./
+COPY ../.. ./
 RUN go mod download
 
 # Build the binary.
