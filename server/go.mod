@@ -10,7 +10,7 @@ require (
 	github.com/dghubble/oauth1 v0.7.3
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
-	github.com/labstack/echo/v4 v4.11.4
+	github.com/labstack/echo/v4 v4.12.0
 	github.com/labstack/gommon v0.4.2
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.33.0
 	github.com/uptrace/bun v1.2.3
