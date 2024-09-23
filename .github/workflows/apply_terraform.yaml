@@ -8,18 +8,21 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  WORKING_DIRECTORY: ./terraform
+
 permissions:
   contents: read
-  pages: write
   id-token: write
   pull-requests: write
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./terraform
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        shell: bash
 
     steps:
       - name: Checkout
@@ -33,13 +36,14 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - uses: aquaproj/aqua-installer@v2.2.0
+      - uses: aquaproj/aqua-installer@v3.0.1
         with:
-          aqua_version: v2.16.4
-          working_directory: /terraform
+          aqua_version: v2.28.0
+          working_directory: ${{ env.WORKING_DIRECTORY }}
+
+      - name: Decrypt terraform.tfvars
+        run: gcloud kms decrypt --location "asia-northeast1" --keyring "infra" --key "infra" --plaintext-file ./terraform.tfvars --ciphertext-file ./terraform.tfvars.enc
 
       - name: Terraform Format
         id: fmt
@@ -60,8 +64,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
 
       - name: Check tfsec
-        run: tfsec .
-        continue-on-error: true
+        run: tfsec --config-file tfsec.yaml .
 
       - name: Terraform Apply
-        run: tfcmt apply -- terraform apply -no-color -auto-approve
+        run: tfcmt apply -- terraform apply -no-color -auto-approve -input=false

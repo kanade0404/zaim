@@ -2,35 +2,22 @@
 
 version: '3'
 
+includes:
+  terraform:
+    taskfile: ./task/Terraform.yaml
+    dir: ./task
+  docker:
+    taskfile: ./task/Docker.yaml
+    dir: ./task
+
 tasks:
-  docker-up:
+  generate:
+    dotenv: ['.env']
+    dir: ./server
     cmds:
-      - docker compose up -d
-  docker-build:
+      - go run cmd/bun/migrate/main.go
+  test:
+    dotenv: ['.env']
+    dir: ./server
     cmds:
-      - docker compose build
-  docker-down:
-    cmds:
-      - docker compose down
-  docker-ps:
-    cmds:
-      - docker compose ps
-  terraform-init:
-    cmds:
-      - docker compose exec terraform terraform init
-  terraform-upgrade:
-    cmds:
-      - docker compose exec terraform terraform init -upgrade
-  terraform-plan:
-    cmds:
-      - docker compose exec terraform terraform plan
-  terraform-apply:
-    cmds:
-      - docker compose exec terraform terraform apply
-  terraform-check:
-    cmds:
-      - docker compose exec terraform terraform fmt -recursive
-      - docker compose exec terraform terraform fmt -recursive -check
-      - docker compose exec terraform terraform validate -no-color
-      - docker compose exec terraform tfsec .
-      - docker compose exec terraform tflint
+      - go test ./...

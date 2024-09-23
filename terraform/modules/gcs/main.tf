@@ -1,6 +1,6 @@
 resource "google_storage_bucket" "bucket" {
-  location = var.location
-  name     = var.name
+  location                    = var.location
+  name                        = var.name
   uniform_bucket_level_access = var.uniform_bucket_level_access
 }
 
@@ -13,6 +13,14 @@ variable "name" {
 }
 
 variable "uniform_bucket_level_access" {
-  type = bool
+  type    = bool
   default = true
+}
+
+output "name" {
+  value = google_storage_bucket.bucket.name
+}
+
+output "url" {
+  value = google_storage_bucket.bucket.url
 }

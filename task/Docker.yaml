@@ -1,0 +1,23 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  up:
+    cmds:
+      - docker compose up -d
+  build:
+    cmds:
+      - docker compose build
+  stop:
+    cmds:
+      - docker compose stop
+  down:
+    cmds:
+      - docker compose down
+  ps:
+    cmds:
+      - docker compose ps
+  logs:
+    cmds:
+      - docker compose logs -f
