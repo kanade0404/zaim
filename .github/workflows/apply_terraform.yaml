@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/apply_terraform.yaml'
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
