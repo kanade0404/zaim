@@ -62,7 +62,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
 
       - name: Check tfsec
-        run: tfsec --config-file tfsec.yaml .
+        run: trivy config --severity HIGH,CRITICAL .
 
       - name: Terraform Plan
         run: tfcmt plan -patch -- terraform plan -no-color -input=false
