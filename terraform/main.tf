@@ -100,7 +100,7 @@ resource "google_cloud_run_v2_service" "app" {
     service_account = module.zaim-func.email
     containers {
       name = "app-1"
-      image = "asia-northeast1-docker.pkg.dev/${var.PROJECT_ID}/${google_artifact_registry_repository.repo.name}/app"
+      image = "asia-northeast1-docker.pkg.dev/${var.PROJECT_ID}/${google_artifact_registry_repository.repo.name}/app:latest"
       ports {
         container_port = 8888
         name = "http1"
