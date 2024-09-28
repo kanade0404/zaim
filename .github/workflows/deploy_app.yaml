@@ -52,7 +52,7 @@ jobs:
           file: ./docker/prd/Dockerfile
           push: true
           tags: |
-            asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ inputs.ref }}
+            asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:latest
 
       - name: Deploy to Cloud Run
         id: deploy

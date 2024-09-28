@@ -63,4 +63,4 @@ jobs:
           context: .
           file: ./docker/prd/Dockerfile
           tags: |
-            asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:${{ inputs.ref }}
+            asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:latest
