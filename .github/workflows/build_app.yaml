@@ -64,3 +64,4 @@ jobs:
           file: ./docker/prd/Dockerfile
           tags: |
             asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:latest
+          working-directory: ./server

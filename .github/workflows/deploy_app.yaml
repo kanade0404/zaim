@@ -53,6 +53,7 @@ jobs:
           push: true
           tags: |
             asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:latest
+          working-directory: ./server
 
       - name: Deploy to Cloud Run
         id: deploy
