@@ -25,11 +25,9 @@ provider "google" {
   }
 }
 
-removed {
-  from = google_cloud_run_service.app
-  lifecycle {
-    destroy = false
-  }
+import {
+  id = "${local.region}/zaim-api"
+  to = google_cloud_run_v2_service.app
 }
 
 resource "random_uuid" "uuid" {}
@@ -76,6 +74,12 @@ module "zaim-func" {
   project_id    = var.PROJECT_ID
 }
 
+module "database-url" {
+  source = "./modules/secret_manager"
+  id     = "database-url"
+  data   = var.DATABASE_URL
+}
+
 module "zaim-file" {
   source   = "./modules/gcs"
   location = "ASIA-NORTHEAST1"
@@ -88,3 +92,46 @@ resource "google_artifact_registry_repository" "repo" {
   format        = "DOCKER"
 }
 
+resource "google_cloud_run_v2_service" "app" {
+  location = local.region
+  name     = "zaim-api"
+  ingress = "INGRESS_TRAFFIC_ALL"
+  template {
+    service_account = module.zaim-func.email
+    containers {
+      name = "app-1"
+      image = "asia-northeast1-docker.pkg.dev/${var.PROJECT_ID}/${google_artifact_registry_repository.repo.name}/app"
+      ports {
+        container_port = 8888
+        name = "http1"
+      }
+      dynamic "env" {
+        for_each = { "HOST" : var.RUN_HOST, "PROJECT_ID" : var.PROJECT_ID, "BUCKET_NAME" : module.zaim-file.name, "ENV": "prd" }
+        content {
+          name  = env.key
+          value = env.value
+        }
+      }
+      env {
+        name = "DATABASE_URL"
+        value_source {
+          secret_key_ref {
+            secret = module.database-url.secret_id
+            version = module.database-url.version
+          }
+        }
+      }
+    }
+  }
+  traffic {
+    percent         = 100
+    type = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
+  }
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+    ]
+  }
+  depends_on = [module.zaim-func, google_artifact_registry_repository.repo, module.database-url]
+}
