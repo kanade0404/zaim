@@ -15,7 +15,7 @@ variable "USERS_SECRET" {
 }
 
 variable "SLACK_API_TOKEN" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -24,7 +24,7 @@ variable "RUN_HOST" {
 }
 
 variable "DATABASE_URL" {
-  type = string
+  type      = string
   sensitive = true
 }
 
