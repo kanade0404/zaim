@@ -113,7 +113,7 @@ resource "google_cloud_run_v2_service" "app" {
         }
       }
       env {
-        name = module.database-url.name
+        name = "DATABASE_URL"
         value_source {
           secret_key_ref {
             secret = module.database-url.secret_id
