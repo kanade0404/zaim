@@ -44,21 +44,20 @@ jobs:
           password: '${{ steps.auth.outputs.access_token }}'
           registry: 'asia-northeast1-docker.pkg.dev'
 
-      - name: Build, tag and push container
-        id: build-image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./docker/prd/Dockerfile
-          push: true
-          tags: |
-            asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:latest
-          working-directory: ./server
+      - name: Build Docker
+        run: docker build -t asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:latest . -f ./docker/prd/Dockerfile
 
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: zaim-api
-          region: asia-northeast1
-          metadata: container.yaml
+      - name: Push Docker
+        run: docker push asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:latest
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy Docker
+        run: |
+          gcloud run deploy zaim-api \
+          --project=kanade0404 \
+          --image asia-northeast1-docker.pkg.dev/kanade0404/zaim-api/app:latest \
+          --service-account zaim-func@kanade0404.iam.gserviceaccount.com \
+          --platform=managed \
+          --region=asia-northeast1
