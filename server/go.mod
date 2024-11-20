@@ -1,6 +1,6 @@
 module github.com/kanade0404/zaim/server
 
-go 1.22
+go 1.23
 
 toolchain go1.23.3
 
@@ -13,7 +13,7 @@ require (
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/labstack/gommon v0.4.2
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.34.0
-	github.com/uptrace/bun v1.2.5
+	github.com/uptrace/bun v1.2.6
 	github.com/uptrace/bun/dialect/pgdialect v1.2.5
 	github.com/uptrace/bun/driver/pgdriver v1.2.5
 	github.com/uptrace/bun/extra/bundebug v1.2.5
@@ -84,7 +84,7 @@ require (
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
-	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.19.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
