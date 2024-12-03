@@ -2,7 +2,7 @@ module github.com/kanade0404/zaim/server
 
 go 1.23
 
-toolchain go1.23.3
+toolchain go1.23.4
 
 require (
 	github.com/Code-Hex/synchro v0.5.2
