@@ -1,11 +1,9 @@
 module github.com/kanade0404/zaim/server
 
-go 1.23
-
-toolchain go1.23.4
+go 1.23.4
 
 require (
-	github.com/Code-Hex/synchro v0.5.2
+	github.com/Code-Hex/synchro v0.5.3
 	github.com/alexlast/bunzap v0.1.0
 	github.com/dghubble/oauth1 v0.7.3
 	github.com/google/go-cmp v0.6.0
@@ -43,7 +41,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/itchyny/timefmt-go v0.1.5 // indirect
+	github.com/itchyny/timefmt-go v0.1.6 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
