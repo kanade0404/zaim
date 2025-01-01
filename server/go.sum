@@ -198,6 +198,8 @@ github.com/uptrace/bun/driver/pgdriver v1.2.5 h1:+0Ofdg/tW7DsIXdTizYWapSex6Csh9V
 github.com/uptrace/bun/driver/pgdriver v1.2.5/go.mod h1:RsYV08Z72glum3swBhag7IBl1D+eztjWmodfcOZFHJ0=
 github.com/uptrace/bun/driver/pgdriver v1.2.6 h1:dD7ckqIhVDayfYTwMKZ0dJM9AZfNJNBu5Cg/8g0EMOk=
 github.com/uptrace/bun/driver/pgdriver v1.2.6/go.mod h1:ChrVrMZlRzPQHTP4QCm/p1FfQqgnYXWlES0GS9qjWEY=
+github.com/uptrace/bun/driver/pgdriver v1.2.7 h1:vJhF+GSQ56xKzfxG9wjxzF09Uzt8fjSRyD0+iJfTUoI=
+github.com/uptrace/bun/driver/pgdriver v1.2.7/go.mod h1:CEdwB+15ol+yc8xjrckftjEdnB5Uy8bkw4jlATdFzJc=
 github.com/uptrace/bun/extra/bundebug v1.1.17 h1:LcZ8DzyyGdXAmbUqmnCpBq7TPFegMp59FGy+uzEE21c=
 github.com/uptrace/bun/extra/bundebug v1.1.17/go.mod h1:FOwNaBEGGChv3qBVh3pz3TPlUuikZ93qKjd/LJdl91o=
 github.com/uptrace/bun/extra/bundebug v1.2.3 h1:2QBykz9/u4SkN9dnraImDcbrMk2fUhuq2gL6hkh9qSc=
