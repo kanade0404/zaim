@@ -6,7 +6,7 @@ require (
 	github.com/Code-Hex/synchro v0.5.3
 	github.com/alexlast/bunzap v0.1.0
 	github.com/dghubble/oauth1 v0.7.3
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/labstack/gommon v0.4.2
