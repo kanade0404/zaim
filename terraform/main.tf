@@ -3,7 +3,7 @@ terraform {
     bucket = "tfstate-kanade0404-070dc2e4-a61e-e22d-2010-d15e23acf81d"
     prefix = "zaim"
   }
-  required_version = "1.9.6"
+  required_version = "1.11.2"
   required_providers {
     google = {
       source  = "hashicorp/google"
